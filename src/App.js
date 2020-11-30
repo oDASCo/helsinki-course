@@ -1,76 +1,75 @@
 import React, { useState } from 'react'
-
-const Button = ({handleClick, text}) => {
-    return (
-        <button onClick={handleClick}>{text}</button>
-    );
-};
-
-const Statistics = (props) => {
-    if (props.good || props.neutral || props.bad) {
-        return (
-            <div>
-                <table>
-                    <tbody>
-                    <Statistic text='Good' value={props.good}/>
-                    <Statistic text='Neutral' value={props.neutral}/>
-                    <Statistic text='Bad' value={props.bad}/>
-                    <Statistic text='All' value={props.stats.all}/>
-                    <Statistic text='Average' value={props.stats.average}/>
-                    <Statistic text='Positive' value={props.stats.positive}/>
-                    </tbody>
-                </table>
-            </div>
-        )
-    } else {
-        return (
-            <div>
-                <p>No feedback given</p>
-            </div>
-        )
-    }
-};
-
-const Statistic = ({text, value}) => <tr><td>{text}:</td><td>{value}</td></tr>;
+import Filter from "./components/Filter";
+import AddForm from "./components/AddForm";
+import PhoneList from "./components/PhonesList";
 
 const App = () => {
-    const [good, setGood] = useState(0);
-    const [neutral, setNeutral] = useState(0);
-    const [bad, setBad] = useState(0);
-    const stats = {
-        all: good + neutral + bad,
-        average: (good - bad) / (good + neutral + bad),
-        positive: (good * 100) / (good + neutral + bad)
+    const [ listOfPersons, setListOfPersons ] = useState([
+        { name: 'Arto Hellas', number: '040-123456' },
+        { name: 'Ada Lovelace', number: '39-44-5323523' },
+        { name: 'Dan Abramov', number: '12-43-234345' },
+        { name: 'Mary Poppendieck', number: '39-23-6423122' }
+    ]);
+    const [ persons, setPersons ] = useState(listOfPersons);
+    const [ newName, setNewName ] = useState('');
+    const [ newNumber, setNewNumber ] = useState('');
+    const [ newSearch, setSearch ] = useState('');
+
+    const handleNameChange = (event) => {
+        event.preventDefault();
+        setNewName(event.target.value);
     };
 
-    const addGoodFB = () => {
-        setGood(good + 1);
+    const handleNumberChange = (event) => {
+        event.preventDefault();
+        setNewNumber(event.target.value);
     };
 
-    const addNeutralFB = () => {
-        setNeutral(neutral + 1);
+    const addName = (event) => {
+        event.preventDefault();
+        if (persons.find(item => item.name === newName)) {
+           alert(`${newName} is already added to phonebook`);
+        } else {
+            setPersons(persons.concat({
+                name: newName,
+                number: newNumber
+            }));
+            setListOfPersons(listOfPersons.concat({
+                name: newName,
+                number: newNumber
+            }));
+            setNewName('');
+            setNewNumber('');
+        }
     };
 
-    const addBadFB = () => {
-        setBad(bad + 1);
+
+    const handleSearch = (event) => {
+        if (event.target.value === '') {
+            setSearch('');
+            setPersons(listOfPersons);
+        } else {
+            setSearch(event.target.value);
+            let filteredPersons = listOfPersons.filter(person => person.name.toLowerCase().indexOf(newSearch.trim().toLowerCase()) !== -1);
+            setPersons(filteredPersons);
+        }
+
     };
 
     return (
         <div>
-            <h2>Give feedback</h2>
-            <Button handleClick={addGoodFB} text='Good'/>
-            <Button handleClick={addNeutralFB} text='Neutral'/>
-            <Button handleClick={addBadFB} text='Bad'/>
-
-            <h3>Statistics</h3>
-
-            <Statistics stats={stats}
-                        good={good}
-                        neutral={neutral}
-                        bad={bad}/>
-
+            <h2>Phonebook</h2>
+            <Filter searchVal={newSearch} onSearchName={handleSearch}/>
+            <h3>Add new</h3>
+           <AddForm newName={newName}
+                    newNumber={newNumber}
+                    onNameChange={handleNameChange}
+                    onNumberChange={handleNumberChange}
+                    onSubmitAdd={addName}/>
+            <h2>Numbers</h2>
+            <PhoneList persons={persons}/>
         </div>
     )
-}
+};
 
 export default App;
