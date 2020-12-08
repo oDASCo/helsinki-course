@@ -5,13 +5,11 @@ const App = () => {
     const [ listOfCountries, setListOfCountries ] = useState([]);
     const [ countries, setCountries ] = useState(listOfCountries);
     const [ newSearch, setSearch ] = useState('');
-    //const [ showOne, setShowState ] = useState(false);
     let country;
     let content;
 
     useEffect(() => {
         const eventHandler = response => {
-            console.log('promise fulfilled');
             setListOfCountries(response.data)
         };
 
@@ -21,7 +19,6 @@ const App = () => {
 
     const showCountry = (countryName) => {
         let country = countries.find(item => item.name === countryName);
-        console.log(country);
         setCountries([country]);
     };
 
