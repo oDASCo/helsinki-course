@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState,  useEffect } from 'react'
 import Filter from "./components/Filter";
 import AddForm from "./components/AddForm";
 import PhoneList from "./components/PhonesList";
+import axios from 'axios';
 
 const App = () => {
     const [ listOfPersons, setListOfPersons ] = useState([
@@ -24,6 +25,18 @@ const App = () => {
         event.preventDefault();
         setNewNumber(event.target.value);
     };
+
+    useEffect(() => {
+        console.log('effect');
+
+        const eventHandler = response => {
+            console.log('promise fulfilled')
+            setListOfPersons(response.data)
+        };
+
+        const promise = axios.get('http://localhost:3001/persons');
+        promise.then(eventHandler)
+    }, []);
 
     const addName = (event) => {
         event.preventDefault();
