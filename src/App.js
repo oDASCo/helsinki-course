@@ -3,14 +3,10 @@ import Filter from "./components/Filter";
 import AddForm from "./components/AddForm";
 import PhoneList from "./components/PhonesList";
 import axios from 'axios';
+import phonesService from './services/phones'
 
 const App = () => {
-    const [ listOfPersons, setListOfPersons ] = useState([
-        { name: 'Arto Hellas', number: '040-123456' },
-        { name: 'Ada Lovelace', number: '39-44-5323523' },
-        { name: 'Dan Abramov', number: '12-43-234345' },
-        { name: 'Mary Poppendieck', number: '39-23-6423122' }
-    ]);
+    const [ listOfPersons, setListOfPersons ] = useState([]);
     const [ persons, setPersons ] = useState(listOfPersons);
     const [ newName, setNewName ] = useState('');
     const [ newNumber, setNewNumber ] = useState('');
@@ -27,32 +23,34 @@ const App = () => {
     };
 
     useEffect(() => {
-        console.log('effect');
-
-        const eventHandler = response => {
-            console.log('promise fulfilled')
-            setListOfPersons(response.data)
-        };
-
-        const promise = axios.get('http://localhost:3001/persons');
-        promise.then(eventHandler)
+        phonesService.getAll().then(response => {
+            setListOfPersons(response.data);
+            setPersons(response.data);
+        });
     }, []);
 
     const addName = (event) => {
         event.preventDefault();
         if (persons.find(item => item.name === newName)) {
-           alert(`${newName} is already added to phonebook`);
+           let answer = window.confirm(`${newName} is already added to phonebook, replace old number?`);
+           if (answer) {
+               let personForUpdate = persons.find(item => item.name === newName);
+               updatePerson(personForUpdate, newNumber);
+           }
         } else {
-            setPersons(persons.concat({
+            const personObj = {
                 name: newName,
+                id: +Date.now(),
                 number: newNumber
-            }));
-            setListOfPersons(listOfPersons.concat({
-                name: newName,
-                number: newNumber
-            }));
-            setNewName('');
-            setNewNumber('');
+            };
+            phonesService
+                .create(personObj)
+                .then(response => {
+                    setPersons(persons.concat(response.data));
+                    setListOfPersons(listOfPersons.concat(response.data));
+                    setNewName('');
+                    setNewNumber('');
+                })
         }
     };
 
@@ -69,6 +67,35 @@ const App = () => {
 
     };
 
+    const deletePerson = ({id, name}) => {
+        let answer = window.confirm(`Delete ${name}`);
+        if (answer) {
+            phonesService
+                .deletePerson(id)
+                .then(() => {
+                    let newList = persons.filter(person => person.id !== id);
+                    setPersons(newList);
+                    setListOfPersons(newList);
+                })
+        }
+    };
+
+    const updatePerson = ({id, name}) => {
+        let updated = {
+            id,
+            name,
+            number: newNumber
+        };
+        phonesService
+            .update(updated, id)
+            .then(response => {
+                setPersons(persons.map(person => person.id !== id ? person : response.data));
+                setListOfPersons(persons.map(person => person.id !== id ? person : response.data));
+                setNewName('');
+                setNewNumber('');
+            })
+    };
+
     return (
         <div>
             <h2>Phonebook</h2>
@@ -80,7 +107,7 @@ const App = () => {
                     onNumberChange={handleNumberChange}
                     onSubmitAdd={addName}/>
             <h2>Numbers</h2>
-            <PhoneList persons={persons}/>
+            <PhoneList persons={persons} onDelete={deletePerson}/>
         </div>
     )
 };

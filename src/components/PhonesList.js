@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import PhoneItem from "./PhoneItem";
 
-const PhoneList = ({persons}) => {
+const PhoneList = ({persons, onDelete}) => {
     return (
         <div>
             <ul>
                 {persons.map(person => {
                     return (
-                        <PhoneItem key={person.name} person={person}/>
+                        <PhoneItem key={person.name} person={person} onDelete={onDelete}/>
                     )
                 })}
             </ul>
