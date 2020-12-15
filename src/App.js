@@ -61,7 +61,7 @@ const App = () => {
             setPersons(listOfPersons);
         } else {
             setSearch(event.target.value);
-            let filteredPersons = listOfPersons.filter(person => person.name.toLowerCase().indexOf(newSearch.trim().toLowerCase()) !== -1);
+            let filteredPersons = listOfPersons.filter(person => person.name.toLowerCase().indexOf(event.target.value.trim().toLowerCase()) !== -1);
             setPersons(filteredPersons);
         }
 
