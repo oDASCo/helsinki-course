@@ -4,6 +4,7 @@ import AddForm from "./components/AddForm";
 import PhoneList from "./components/PhonesList";
 import axios from 'axios';
 import phonesService from './services/phones'
+import Notification from './components/Notification';
 
 const App = () => {
     const [ listOfPersons, setListOfPersons ] = useState([]);
@@ -11,6 +12,10 @@ const App = () => {
     const [ newName, setNewName ] = useState('');
     const [ newNumber, setNewNumber ] = useState('');
     const [ newSearch, setSearch ] = useState('');
+    const [notifMessage, setNotifMessage] = useState({
+        text: '',
+        type: 'general'
+    });
 
     const handleNameChange = (event) => {
         event.preventDefault();
@@ -50,6 +55,10 @@ const App = () => {
                     setListOfPersons(listOfPersons.concat(response.data));
                     setNewName('');
                     setNewNumber('');
+                    setNotifMessage({...notifMessage, text: `${newName}  successfully added`});
+                    setTimeout(() => {
+                        setNotifMessage('');
+                    }, 3000);
                 })
         }
     };
@@ -93,7 +102,17 @@ const App = () => {
                 setListOfPersons(persons.map(person => person.id !== id ? person : response.data));
                 setNewName('');
                 setNewNumber('');
+                setNotifMessage({...notifMessage, text: `Number for ${newName}  successfully updated`});
+                setTimeout(() => {
+                    setNotifMessage('');
+                }, 3000);
             })
+            .catch(err => {
+                setNotifMessage({type: 'error', text: `Person ${newName} has already removed from server`});
+                setTimeout(() => {
+                    setNotifMessage('');
+                }, 3000);
+            });
     };
 
     return (
@@ -101,6 +120,7 @@ const App = () => {
             <h2>Phonebook</h2>
             <Filter searchVal={newSearch} onSearchName={handleSearch}/>
             <h3>Add new</h3>
+            <Notification message={notifMessage} />
            <AddForm newName={newName}
                     newNumber={newNumber}
                     onNameChange={handleNameChange}
