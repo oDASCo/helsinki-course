@@ -2,7 +2,6 @@ import React, { useState,  useEffect } from 'react'
 import Filter from "./components/Filter";
 import AddForm from "./components/AddForm";
 import PhoneList from "./components/PhonesList";
-import axios from 'axios';
 import phonesService from './services/phones'
 import Notification from './components/Notification';
 
