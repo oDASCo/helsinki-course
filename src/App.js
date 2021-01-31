@@ -58,7 +58,10 @@ const App = () => {
                     setTimeout(() => {
                         setNotifMessage('');
                     }, 3000);
-                })
+                }).catch(err => {
+                setNotifMessage({type: 'error', text: err.response.data.error});
+                }
+            );
         }
     };
 
